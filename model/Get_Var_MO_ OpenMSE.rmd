@@ -1,0 +1,284 @@
+---
+title: "Get_Var_MO_OpenMSE, Version 1"
+author: "Ignacio Payá C.,  IFOP, Chile"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output:
+  html_document:
+    df_print: paged
+    number_sections: yes
+    pdf_document: default
+    self_contained: True
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: no
+  word_document:
+    reference_docx: MystylesAnexo.docx
+    toc: yes
+bibliography: references.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+#####
+# Instalar jjmR y chequer
+```{r}
+#install.packages("devtools")
+#devtools::install_github("SPRFMO/jjmR")
+library(jjmR)
+wd=setwd('D:/Jurel/FIP_OPEN_MSE 2/FIP_OPEN_MSE/MdelSUR_workshop-southern-hake/ADMB/jurel')
+#wd=setwd('C:/Users/ignacio.paya/OneDrive - Instituto de Fomento Pesquero/JUREL/FIP_OPEN_MSE/MdelSUR_workshop-southern-hake/ADMB/jurel')
+getwd()
+# need subfolders: config, input, results
+
+# Chequeo
+
+# Run without estimation and with pdf file
+#jjmR::runit(mod="h1_1.07",
+#            est = FALSE,
+#            exec = NULL,
+#            path = "config",
+#            input = "input",
+#            output = "results",
+#            version = "2015MS",
+#            pdf = TRUE,
+#            portrait = TRUE
+#)
+#mod_current <- jjmR::readJJM("h1_1.07.ls", path = "config", input = "input")
+mod_current <- jjmR::readJJM("h1_1.07", path = "config", input = "input")
+
+jjmR::kobe(mod_current)
+```
+# Find variables
+```{r}
+names(mod_current)
+#names(mod_current[[1]])
+#mod_current[[1]]$info
+#mod_current[[1]]$data
+names(mod_current[[1]]$data$fleet_names)
+mod_current[[1]]$data$Inames
+#mod_current[[1]]$data$Index
+mod_current[[1]]$control$modelName
+#mod_current[[1]]$output
+# outputs
+names(mod_current[[1]]$output$Stock_1)
+```
+
+## Table de MSY
+```{r}
+## Table function
+library(tidyverse)
+tabla.resumen <- function(modelo) {
+  y_ind <- modelo[[1]]$output[[1]]$SSB[,1] %in% modelo[[1]]$output[[1]]$msy_mt[,1]
+  #table_qtt <- data.frame(yr  = sc08.01[[1]]$output[[1]]$msy_mt[,1]) %>%
+  table_qtt <- data.frame(yr  = modelo[[1]]$output[[1]]$msy_mt[,1]) %>%
+    mutate(
+      #yflo      = round(as.vector(rowSums(modelo[[1]]$data$Fcaton)), 0),
+      ssb       = round(modelo[[1]]$output[[1]]$SSB[y_ind,2], 0),
+      r         = round(modelo[[1]]$output[[1]]$R[,2], 0),
+      ssb_msy   = round(modelo[[1]]$output[[1]]$msy_mt[,10], 0),
+      fflo      = round(modelo[[1]]$output[[1]]$msy_mt[,6], 2),
+      fmsy      = round(modelo[[1]]$output[[1]]$msy_mt[,5], 2),
+      ssb0      = round(modelo[[1]]$output[[1]]$msy_mt[,11], 2),
+      r_fmsy    = round(modelo[[1]]$output[[1]]$msy_mt[,4], 2),
+      r_ssbmsy  = round(modelo[[1]]$output[[1]]$msy_mt[,13], 2),
+      msy       = round(modelo[[1]]$output[[1]]$msy_mt[,8], 2),
+      msyL      = round(modelo[[1]]$output[[1]]$msy_mt[,9], 2),
+      spr_ratio = round(modelo[[1]]$output[[1]]$msy_mt[,7], 2),
+      spr_ft    = round(modelo[[1]]$output[[1]]$msy_mt[,2], 2)
+    )
+  return(table_qtt)
+}
+
+# Table
+x=data.frame(tabla.resumen(mod_current))
+x
+#library("writexl")
+#write_xlsx(x, path=paste0(getwd(),"/Results/",paste0(mod_current[[1]]$control$modelName,"_MainResults.xlsx")))
+## desde jjmR
+get_msy_mt(mod_current)
+```
+
+# Variable Biológicas
+```{r}
+#### Biologicas: , , ,
+# mortalidad natural
+M=mod_current[[1]]$output$Stock_1$M
+# ojiva de madurez a la edad
+mature_a=mod_current[[1]]$output$Stock_1$mature_a
+plot(mature_a)
+# pesos a la edad en la población
+wt_a_pop=mod_current[[1]]$output$Stock_1$wt_a_pop
+plot(wt_a_pop)
+# longitud a la edad ??????
+```
+
+```{r}
+
+# pesqueras:
+# año + mortalidad por pesca de las flotas
+F_age_1=mod_current[[1]]$output$Stock_1$F_age_1
+matplot(F_age_1[20:30,2:13])
+
+F_age_2=mod_current[[1]]$output$Stock_1$F_age_2
+matplot(F_age_2[1,2:13])
+
+F_age_3=mod_current[[1]]$output$Stock_1$F_age_3
+matplot(F_age_3[1,2:13])
+
+F_age_4=mod_current[[1]]$output$Stock_1$F_age_4
+matplot(F_age_4[1,2:13])
+
+# stock + año + selectividades
+sel_fsh_1=mod_current[[1]]$output$Stock_1$sel_fsh_1
+matplot(sel_fsh_1[30:35,3:14])
+
+sel_fsh_2=mod_current[[1]]$output$Stock_1$sel_fsh_2
+matplot(sel_fsh_2[30,3:14])
+
+sel_fsh_3=mod_current[[1]]$output$Stock_1$sel_fsh_3
+matplot(sel_fsh_3[30,3:14])
+
+sel_fsh_4=mod_current[[1]]$output$Stock_1$sel_fsh_4
+matplot(sel_fsh_1[30,3:14])
+```
+
+## Abundancia población
+```{r}
+## Abundancia población
+#abundancia población
+N=mod_current[[1]]$output$Stock_1$N
+matplot(N[30:35,2:13])
+```
+## capturabilidad
+```{r}
+# capturabilidad
+plot(mod_current[[1]]$output$Stock_1$Index_Q_1)
+plot(mod_current[[1]]$output$Stock_1$Index_Q_2)
+plot(mod_current[[1]]$output$Stock_1$Index_Q_3)
+plot(mod_current[[1]]$output$Stock_1$Index_Q_4)
+plot(mod_current[[1]]$output$Stock_1$Index_Q_5)
+plot(mod_current[[1]]$output$Stock_1$Index_Q_6)
+```
+
+## Indices
+```{r}
+# Año + índices
+# Indice CS
+indices.dat<-mod_current[[1]]$data$Index
+year3<-as.numeric(na.omit(mod_current[[1]]$data$Iyears[,3]))
+Obs_Survey_3=mod_current[[1]]$output$Stock_1$Obs_Survey_3
+plot(year3,as.numeric(na.omit(indices.dat[,3],t="l")))
+lines(year3,Obs_Survey_3[,2])  # Dato
+lines(year3,Obs_Survey_3[,3],col="red")  # Estimado
+lines(year3,Obs_Survey_3[,2]+Obs_Survey_3[,4]) # intervalo de confianza del dato
+lines(year3,Obs_Survey_3[,2]-Obs_Survey_3[,4]) # intervalo de confianza del dato
+
+#  Chile_AcousCS
+Obs_Survey_1=mod_current[[1]]$output$Stock_1$Obs_Survey_1
+matplot(Obs_Survey_1[,1],Obs_Survey_1[,2:4],t="l")
+
+# Acustica Norte
+Obs_Survey_2=mod_current[[1]]$output$Stock_1$Obs_Survey_2
+matplot(Obs_Survey_2[,1],Obs_Survey_2[,2:4])
+
+Obs_Survey_3=mod_current[[1]]$output$Stock_1$Obs_Survey_3
+matplot(Obs_Survey_3[,1],Obs_Survey_3[,2:4])
+
+Obs_Survey_4=mod_current[[1]]$output$Stock_1$Obs_Survey_4
+matplot(Obs_Survey_4[,1],Obs_Survey_4[,2:4])
+
+Obs_Survey_5=mod_current[[1]]$output$Stock_1$Obs_Survey_5
+matplot(Obs_Survey_5[,1],Obs_Survey_5[,2:4])
+
+Obs_Survey_6=mod_current[[1]]$output$Stock_1$Obs_Survey_6
+matplot(Obs_Survey_6[,1],Obs_Survey_6[,2:4])
+
+Obs_Survey_7=mod_current[[1]]$output$Stock_1$Obs_Survey_7
+matplot(Obs_Survey_7[,1],Obs_Survey_7[,2:4])
+
+```
+
+##  Capturas
+```{r}
+mod_current[[1]]$output$Stock_1$Index_names
+# las series de captura
+mod_current[[1]]$data$Fnames
+mod_current[[1]]$output$Stock_1$
+mod_current[[1]]$output$Stock_1$Obs_catch_1
+mod_current[[1]]$output$Stock_1$Obs_catch_2
+plot(mod_current[[1]]$output$Stock_1$Obs_catch_2)
+mod_current[[1]]$output$Stock_1$Obs_catch_3
+mod_current[[1]]$output$Stock_1$Obs_catch_4
+
+# PEsoss de longitud por flota
+wt_fsh_1=mod_current[[1]]$output$Stock_1$wt_fsh_1
+matplot(wt_fsh_1[1,2:13])
+wt_fsh_2=mod_current[[1]]$output$Stock_1$wt_fsh_2
+matplot(wt_fsh_2[1,2:13])
+
+```
+
+## Datos: Estructuras de edades
+```{r}
+## Datos: Estructuras de edades
+mod_current[[1]]$data$Fnames
+mod_current[[1]]$data$Fagecomp[,,1]
+mod_current[[1]]$data$Fagecomp[,,2]
+matplot(t(mod_current[[1]]$data$Fagecomp[,,2]))
+mod_current[[1]]$data$Fagecomp[,,3]
+mod_current[[1]]$data$Fagecomp[,,4]
+```
+
+## Estimados: Estructuras de edades
+```{r}
+## Estimados: Estructuras de edades 1° Columna Año
+#mod_current[[1]]$output$Stock_1$pobs_fsh_1
+mod_current[[1]]$output$Stock_1$phat_fsh_1
+mod_current[[1]]$output$Stock_1$phat_fsh_2
+matplot(t(mod_current[[1]]$output$Stock_1$phat_fsh_2[,2:13]),t="l")
+mod_current[[1]]$output$Stock_1$phat_fsh_3  # No estimada captura a la edad de la Flota Peruana
+mod_current[[1]]$output$Stock_1$phat_fsh_4
+```
+
+## Estimados: Proporcion de longuitudes de Perú
+```{r}
+# Estimados: Proporcion de longuitudes
+#mod_current[[1]]$output$Stock_1$pobs_len_fsh_3
+mod_current[[1]]$data$lengthbin
+mod_current[[1]]$data$nbins
+mod_current[[1]]$data$lengths
+mod_current[[1]]$output$Stock_1$phat_len_fsh_3
+dim(mod_current[[1]]$output$Stock_1$phat_len_fsh_3)
+tallasperu<-mod_current[[1]]$output$Stock_1$phat_len_fsh_3[,2:42]  # años (desde el 1980 * Tallas
+dim(tallasperu)
+matplot(mod_current[[1]]$data$lengthbin,t(tallasperu),t="l")
+```
+
+
+## # Clave Talla-edad
+```{r}
+# Clave Talla-edad
+claveperu<-mod_current[[1]]$output$Stock_1$P_age2len_1
+matplot(mod_current[[1]]$data$lengthbin,t(mod_current[[1]]$output$Stock_1$P_age2len_1[1:12,]),t="l")
+```
+
+## C edad Peru
+```{r}
+dim(tallasperu)
+dim(claveperu)
+
+cedadperu<-matrix(NA,dim(tallasperu)[1],12)
+for(i in 1:dim(tallasperu)[1]){
+  for (j in 1:12)
+  {
+  cedadperu[i,j]=sum(tallasperu[i,]*claveperu[j,])
+  }
+}
+matplot(cedadperu,t="l")
+ceadadperuanios=cbind(mod_current[[1]]$output$Stock_1$phat_len_fsh_3[,1],cedadperu)
+matplot(ceadadperuanios[,1],cedadperu,t="l")
+```
