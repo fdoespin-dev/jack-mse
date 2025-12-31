@@ -1,3 +1,6 @@
+# This script have function for empirical management procedure with HCR,
+# This is the first version on 31-december-2025 for Fernando Espíndola
+#
 # PM
 Sin_Captura <- function(x, DataList, ...) {
   np <- length(DataList)
