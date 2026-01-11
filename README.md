@@ -27,6 +27,7 @@ To generate the figures, run the following script:
 source("06-make-figures.R")
 ```
 
+<img src="/figuras/projection_SB.png" width="100%" />
 
 
 
