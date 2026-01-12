@@ -1,4 +1,4 @@
-# jack-mse <img src=url('https://www.ifop.cl/wp-content/themes/ifop-2024-07/assets/img/logo_ifop_transparente.png') align="right" height="109" />
+# jack-mse <img src='https://www.ifop.cl/wp-content/themes/ifop-2024-07/assets/img/logo_ifop_transparente.png' align="right" height="109" />
 
 <!-- badges: start -->
 
