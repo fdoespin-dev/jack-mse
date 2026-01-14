@@ -15,7 +15,7 @@ library(openMSE)
 source("01-make-om-4-fleet.R")
 ```
 
-This script creates the operating models from the stock assessment model, JJM. Then, run the `03-simulate-mp.R`, this script calls the HCR-based management procedures `99-function-mmp.R` and run simulations.
+This script creates the operating models from the stock assessment model, [JJM](https://github.com/SPRFMO/). Then, run the `03-simulate-mp.R`, this script calls the HCR-based management procedures `99-function-mmp.R` and run simulations.
 
 ```{r example, message=FALSE}
 source("03-simulate-mp.R")
